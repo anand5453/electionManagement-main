@@ -1,0 +1,5 @@
+name,rollno,email,password
+John Doe,1001,john@example.com,pass123
+Alice Smith,1002,alice@example.com,secure456
+Bob Brown,1003,bob@example.com,qwerty789
+
