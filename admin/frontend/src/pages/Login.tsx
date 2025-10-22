@@ -1,36 +1,31 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Alert } from "@/components/ui/alert";
 import Navbar from "../components/navbar";
 
-// NEW UTILITY FUNCTION: Validates email to ensure it is in the format *@<domain>.com
 const isValidEmail = (email: string): boolean => {
-  // RegEx: checks for any characters, followed by '@', followed by any domain, 
-  // and strictly ending with '.com'.
-  const emailRegex = /^[^\s@]+@[^\s@]+\.com$/i;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/i;
   return emailRegex.test(email);
 };
 
-const AdminLogin: React.FC = () => {
+const AdminLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
+    setError("");
     setLoading(true);
 
-    // 🛑 VALIDATION CHECK: Check if the email is in the correct format
     if (!isValidEmail(email)) {
-      setError("Please enter a valid email address that ends in '.com'.");
+      setError("Please enter a valid email address.");
       setLoading(false);
-      return; // Stop the login process
+      return;
     }
 
     try {
@@ -44,7 +39,7 @@ const AdminLogin: React.FC = () => {
         localStorage.setItem("admin", JSON.stringify(response.data.admin));
         navigate("/admDash");
       }
-    } catch (err: unknown) {
+    } catch (err) {
       console.error("Login failed:", err);
       
       if (axios.isAxiosError(err) && err.response) {
@@ -64,9 +59,9 @@ const AdminLogin: React.FC = () => {
         <div className="bg-white shadow-md rounded-lg p-6 w-96">
           <h2 className="text-2xl font-bold text-center">Admin Login</h2>
           {error && (
-            <Alert className="mt-3 text-red-500 bg-red-100 p-2 text-center rounded-md">
-              {error}
-            </Alert>
+            <div className="mt-3 text-red-600 bg-red-50 p-3 rounded-md border border-red-200">
+              <p className="text-sm text-center">{error}</p>
+            </div>
           )}
           <form className="mt-4 space-y-4" onSubmit={handleLogin}>
             <Input

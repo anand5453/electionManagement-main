@@ -38,6 +38,12 @@ const AdminSignup = () => {
     e.preventDefault();
     setError("");
 
+    // Check if name is empty
+    if (!formData.name.trim()) {
+      setError("Name is required");
+      return;
+    }
+
     // Validate name: only letters and spaces allowed
     if (!/^[a-zA-Z\s]+$/.test(formData.name)) {
       setError("Name should only contain letters and spaces");
