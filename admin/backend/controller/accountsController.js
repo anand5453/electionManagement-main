@@ -47,14 +47,20 @@ export const uploadStudents = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(student.password, 10);
 
-        let faceEmbedding = [];
+        let faceEmbedding = null;
         const absoluteImagePath = path.resolve(student.imageUrl);
         try {
           // Call Python API for embedding
           const response = await axios.post("http://localhost:5001/generate-embedding", {
             imagePath: absoluteImagePath,
           });
-          faceEmbedding = response.data.embedding;
+          
+          if (response.data.status === "success" && response.data.embedding) {
+            faceEmbedding = response.data.embedding;
+            console.log(`✅ Generated embedding for ${student.email}`);
+          } else {
+            console.warn(`Failed to generate embedding for ${student.email}: ${response.data.message || "Unknown error"}`);
+          }
         } catch (err) {
           console.warn(`Embedding failed for ${student.email}:`, err.message);
         }
@@ -65,9 +71,9 @@ export const uploadStudents = async (req, res) => {
           email: student.email,
           password: hashedPassword,
           imageUrls: [student.imageUrl],
-          faceEmbeddings: [faceEmbedding],
-          faceRegistered: faceEmbedding.length > 0,
-          embeddingUpdatedAt: faceEmbedding.length > 0 ? new Date() : null,
+          faceEmbeddings: faceEmbedding ? [faceEmbedding] : [],
+          faceRegistered: faceEmbedding !== null,
+          embeddingUpdatedAt: faceEmbedding ? new Date() : null,
         });
 
         await newStudent.save();

@@ -109,6 +109,19 @@ def verify_face():
                 "status": "error",
                 "message": "Missing image or stored embeddings"
             }), 400
+            
+        # Validate stored_embeddings format
+        if not isinstance(stored_embeddings, list):
+            return jsonify({
+                "status": "error",
+                "message": "Stored embeddings must be a list"
+            }), 400
+            
+        if len(stored_embeddings) == 0:
+            return jsonify({
+                "status": "error",
+                "message": "No stored embeddings provided"
+            }), 400
 
         if model is None:
             return jsonify({
@@ -131,15 +144,38 @@ def verify_face():
             img_path=img, model_name="Facenet", enforce_detection=False
         )[0]
         embedding = np.array(embedding_obj["embedding"])
+        print("Generated embedding shape:", embedding.shape)
 
         # Compare with stored embeddings
         best_score = 0
+        valid_embeddings_found = False
+        
         for emb in stored_embeddings:
             emb_np = np.array(emb)
+            print("Stored embedding shape:", emb_np.shape)
+            
+            # Skip empty embeddings
+            if emb_np.size == 0 or len(emb_np.shape) == 0:
+                print("⚠️ Skipping empty embedding")
+                continue
+                
+            # Ensure embedding has the correct shape (128 dimensions for FaceNet)
+            if emb_np.shape != (128,):
+                print(f"⚠️ Skipping embedding with incorrect shape: {emb_np.shape}")
+                continue
+                
+            valid_embeddings_found = True
             similarity = np.dot(embedding, emb_np) / (
                 np.linalg.norm(embedding) * np.linalg.norm(emb_np)
             )
             best_score = max(best_score, similarity)
+        
+        # If no valid embeddings were found, return an error
+        if not valid_embeddings_found:
+            return jsonify({
+                "status": "error",
+                "message": "No valid stored embeddings found. Please re-register your face."
+            }), 400
 
         threshold = 0.7
         match = best_score >= threshold
