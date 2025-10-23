@@ -255,3 +255,22 @@ This README includes:
 - ✅ Contributing guidelines
 
 You can customize the author information, repository URL, and contact details to match your project!
+
+
+
+
+this is the student env file 
+
+
+PORT=5000
+MONGO_URI=mongodb://127.0.0.1:27017/electiondb
+JWT_SECRET=ddc5e3dcad19d9cadc96d7de5f655ab1
+SECRET_KEY= b1A9z8X2N7v5L6p0Q3rY4T6W2mK7dE3
+
+
+this is the admin env file 
+
+PORT=8000
+MONGO_URI=mongodb://127.0.0.1:27017/electiondb
+JWT_SECRET=a2a935076da9f8794000b8c695cc7a45
+NODE_ENV=production
